@@ -246,7 +246,7 @@ limitations under the License.
         </div>
 
 			<!-- The Monitor Overlay -->
-			<img class="monitor-overlay" src="https://i.ibb.co/bMZNc2gm/1c779d46-f7af-4f44-86c2-8ad0b1515877-1-2.webp" alt="Retro Monitor Overlay">
+			<img class="monitor-overlay" src="/computerscreen.webp" alt="Retro Monitor Overlay">
 		</div>
     </div>
 	
@@ -294,34 +294,34 @@ limitations under the License.
         const pages = {
             home: `WELCOME TO MY PERSONAL TERMINAL.
             
-THIS IS A TEXT-BASED INTERFACE RUNNING ON A LEGACY SYSTEM.
-USE THE NAVIGATION BAR ABOVE TO ACCESS FILES.
+            THIS IS A TEXT-BASED INTERFACE RUNNING ON A LEGACY SYSTEM.
+            USE THE NAVIGATION BAR ABOVE TO ACCESS FILES.
 
-STATUS: ONLINE
-CONNECTION: SECURE
-DATE: ${new Date().toLocaleDateString()}`,
+            STATUS: ONLINE
+            CONNECTION: SECURE
+            DATE: ${new Date().toLocaleDateString()}`,
             about: `> LOAD BIO.TXT
 
-I AM A CREATIVE DEVELOPER WITH A PASSION FOR RETRO TECHNOLOGY AND MINIMALIST DESIGN. And up until 2021-2022, I still used our old samsung family laptop which we considered our only computer that had an old intel and 2GB of DDR3 to play mostly roblox games, and growing up in rural Thailand you're always surrounded by old and retro tech.
+            I AM A CREATIVE DEVELOPER WITH A PASSION FOR RETRO TECHNOLOGY AND MINIMALIST DESIGN. And up until 2021-2022, I still used our old samsung family laptop which we considered our only computer that had an old intel and 2GB of DDR3 to play mostly roblox games, and growing up in rural Thailand you're always surrounded by old and retro tech.
 
-SKILLS:
-* HTML / CSS / JS
-* PIXEL ART
-* SYSTEM ARCHITECTURE`,
+            SKILLS:
+            * HTML / CSS / JS
+            * PIXEL ART
+            * SYSTEM ARCHITECTURE`,
             projects: `> LIST PROJECTS_DIR/
 
-WIP`,
+            WIP`,
             contact: `> OPEN MAIL_CLIENT
 
-EMAIL: CEQELL@CEQELL.ME
-GITHUB: GITHUB.COM/CEQELL
+            EMAIL: CEQELL@CEQELL.ME
+            GITHUB: GITHUB.COM/CEQELL
 
-TRANSMISSION END.`,
+            TRANSMISSION END.`,
             sourcecode: `> OPEN SRC.TXT
 
-THIS WEBSITE IS LICENSED UNDER THE APACHE LICENSE 2.0.
-THE SOURCE CODE OF WHICH, CAN BE VIEWED HERE:
-<a href="https://github.com/Ceqell/ceqell">https://github.com/Ceqell/ceqell</a>
+            THIS WEBSITE IS LICENSED UNDER THE APACHE LICENSE 2.0.
+            THE SOURCE CODE OF WHICH, CAN BE VIEWED HERE:
+            <a href="https://github.com/Ceqell/ceqell">https://github.com/Ceqell/ceqell</a>
 
 `
         };
@@ -353,7 +353,9 @@ THE SOURCE CODE OF WHICH, CAN BE VIEWED HERE:
                 if (link.dataset.target === pageId) link.classList.add('active');
                 else link.classList.remove('active');
             });
-            if (pages[pageId]) typeText(pages[pageId]);
+            if (pages[pageId]) {
+                displayElement.innerHTML = pages[pageId];
+            }
         }
 
         window.onload = function() {
