@@ -39,6 +39,18 @@ limitations under the License.
             font-family: 'Courier New', Courier, monospace;
         }
 
+        /* --- CUSTOM TEXT SELECTION --- */
+        ::selection {
+            background-color: #ffcc00; /* The Amber Block */
+            color: #000000;            /* The Text turns Black */
+        }
+
+        /* Firefox compatibility (optional but good practice) */
+        ::-moz-selection {
+            background-color: #ffcc00;
+            color: #000000;
+        }
+
 		/* --- LAYOUT CONTAINER --- */
 		.scene-container {
 			position: relative;
@@ -207,13 +219,40 @@ limitations under the License.
             50% { opacity: 0; }
         }
 
+        .tab {
+            display: inline-block;
+            margin-left: 4em;
+        }
+
+
+        /* --- HYPERLINK STYLING --- */
+        /* Target all links inside the content area */
+        .crt-content a {
+            color: #ffcc00;            /* Force Amber color */
+            text-decoration: underline; /* Add the underline */
+            text-decoration-thickness: 1px; /* Keep it crisp */
+            cursor: pointer;
+        }
+
+        /* IMPORTANT: Fix the "Visited" link color (stops it turning purple) */
+        .crt-content a:visited {
+            color: #ffcc00;
+        }
+
+        /* Optional: Cool retro hover effect */
+        .crt-content a:hover {
+            background-color: #ffcc00; /* Amber block */
+            color: #000;               /* Black text */
+            text-decoration: none;
+        }
+
     </style>
 </head>
 <body>
 
-	<audio id="bg-audio" src="/computer_hum.mp3"></audio>
+	<audio id="bg-audio" src="computer_hum.mp3"></audio>
 
-    <audio id="click-audio" src="/mouse_click.mp3" preload="auto"></audio>
+    <audio id="click-audio" src="mouse_click.mp3" preload="auto"></audio>
 
     <div class="scene-container" id="scene-container">
         <div class="retro-container">
@@ -241,12 +280,11 @@ limitations under the License.
 					</div>
 
                 <div id="content-display"></div>
-                <span class="cursor"></span>
             </div>
         </div>
 
 			<!-- The Monitor Overlay -->
-			<img class="monitor-overlay" src="/computerscreen.webp" alt="Retro Monitor Overlay">
+			<img class="monitor-overlay" src="computerscreen.webp" alt="Retro Monitor Overlay">
 		</div>
     </div>
 	
@@ -254,10 +292,10 @@ limitations under the License.
 
         /* --- AUDIO SYSTEM --- */
         const humAudio = document.getElementById("bg-audio");
-        const clickSource = "/mouse_click.mp3"; // Path to your click file
+        const clickSource = "mouse_click.mp3"; // Path to your click file
 
         // 1. SETUP BACKGROUND HUM
-        humAudio.volume = 0.3; // Keep it subtle
+        humAudio.volume = 0.5; // Keep it subtle
 
         // Listen for the end of the track
         humAudio.addEventListener('ended', function() {
@@ -281,86 +319,119 @@ limitations under the License.
             // We create a new Audio object for every click so they can overlap 
             // (if the user clicks fast, it won't cut off the previous sound)
             const sound = new Audio(clickSource);
-            sound.volume = 0.5;
+            sound.volume = 0.3;
             sound.play();
         }
 
         // Attach click sound to all nav links
-        document.querySelectorAll('.nav-link').forEach(link => {
-            link.addEventListener('click', playClickSound);
+        document.addEventListener('click', function(e) {
+        // Check if the clicked element (or its parent) is an <a> tag
+            if (e.target.closest('a')) {
+                playClickSound();
+            }
         });
 
         // --- CONTENT LOGIC ---
         const pages = {
             home: `WELCOME TO MY PERSONAL TERMINAL.
-            
-            THIS IS A TEXT-BASED INTERFACE RUNNING ON A LEGACY SYSTEM.
+            <br><br>
+            THIS IS A TEXT-BASED INTERFACE RUNNING ON A LEGACY SYSTEM.<br>
             USE THE NAVIGATION BAR ABOVE TO ACCESS FILES.
-
-            STATUS: ONLINE
-            CONNECTION: SECURE
-            DATE: ${new Date().toLocaleDateString()}`,
-            about: `> LOAD BIO.TXT
+            <br><br>
+            STATUS: ONLINE<br>
+            CONNECTION: SECURE<br>
+            DATE: ${new Date().toLocaleDateString()}<br>`,
+            about: `> LOAD BIO.TXT<br><br>
 
             I AM A CREATIVE DEVELOPER WITH A PASSION FOR RETRO TECHNOLOGY AND MINIMALIST DESIGN. And up until 2021-2022, I still used our old samsung family laptop which we considered our only computer that had an old intel and 2GB of DDR3 to play mostly roblox games, and growing up in rural Thailand you're always surrounded by old and retro tech.
+            <br><br>
+            SKILLS:<br>
+            * HTML / CSS / JS<br>
+            * PIXEL ART<br>
+            * SYSTEM ARCHITECTURE<br>`,
+            projects: `> LIST PROJECTS_DIR/<br><br>
 
-            SKILLS:
-            * HTML / CSS / JS
-            * PIXEL ART
-            * SYSTEM ARCHITECTURE`,
-            projects: `> LIST PROJECTS_DIR/
+            WIP<br>`,
+            contact: `> OPEN MAIL_CLIENT<br><br>
 
-            WIP`,
-            contact: `> OPEN MAIL_CLIENT
+            EMAIL: CEQELL@CEQELL.ME<br>
+            GITHUB: GITHUB.COM/CEQELL<br><br>
 
-            EMAIL: CEQELL@CEQELL.ME
-            GITHUB: GITHUB.COM/CEQELL
+            TRANSMISSION END.<br>`,
+            sourcecode: `> OPEN SRC.TXT<br><br>
 
-            TRANSMISSION END.`,
-            sourcecode: `> OPEN SRC.TXT
-
-            THIS WEBSITE IS LICENSED UNDER THE APACHE LICENSE 2.0.
-            THE SOURCE CODE OF WHICH, CAN BE VIEWED HERE:
-            <a href="https://github.com/Ceqell/ceqell">https://github.com/Ceqell/ceqell</a>
-
-`
+            THIS WEBSITE IS LICENSED UNDER THE APACHE LICENSE 2.0.<br>
+            THE SOURCE CODE OF WHICH, CAN BE VIEWED HERE:<br><br>
+            <a href="https://github.com/Ceqell/ceqell" class="tab" target="_blank">https://github.com/Ceqell/ceqell</a><br>`
         };
 
-        let currentTimeout;
         const displayElement = document.getElementById('content-display');
-        const typingSpeed = 10;
+    let currentTimeout; // To track and stop typing if user switches pages
 
-        function typeText(text) {
-            if (currentTimeout) clearTimeout(currentTimeout);
-            displayElement.innerHTML = '';
-            let i = 0;
-            function type() {
-                if (i < text.length) {
-                    if (text.charAt(i) === '\n') displayElement.innerHTML += '<br>';
-                    else displayElement.innerHTML += text.charAt(i);
+    // The "Smart" Typing Function
+    function typeHTML(htmlText) {
+        let i = 0;
+        displayElement.innerHTML = '<span class="cursor"></span>'; // Start empty with cursor
+
+        function type() {
+            if (i < htmlText.length) {
+                let char = htmlText.charAt(i);
+
+                // If we encounter a tag opener '<', extract the WHOLE tag
+                if (char === '<') {
+                    let tag = '';
+                    // Loop until we find the closing '>'
+                    while (htmlText.charAt(i) !== '>' && i < htmlText.length) {
+                        tag += htmlText.charAt(i);
+                        i++;
+                    }
+                    tag += '>'; // Add the closing bracket
+                    i++; // Move past the '>'
+                    
+                    // Add the tag to the screen instantly (invisible to user, but updates structure)
+                    // We insert it BEFORE the cursor
+                    displayElement.innerHTML = displayElement.innerHTML.replace('<span class="cursor"></span>', tag + '<span class="cursor"></span>');
+                    
+                    // Don't wait, run the next loop immediately so there's no pause
+                    type(); 
+                } 
+                else {
+                    // It's a normal character
                     i++;
+                    displayElement.innerHTML = displayElement.innerHTML.replace('<span class="cursor"></span>', char + '<span class="cursor"></span>');
+                    
+                    // Scroll to bottom
                     const container = document.querySelector('.crt-content');
                     container.scrollTop = container.scrollHeight;
-                    currentTimeout = setTimeout(type, typingSpeed);
+
+                    // Wait for typing speed (20ms)
+                    currentTimeout = setTimeout(type, 20);
                 }
             }
-            type();
         }
+        type();
+    }
 
-        function navigate(pageId) {
-            const links = document.querySelectorAll('.nav-link');
-            links.forEach(link => {
-                if (link.dataset.target === pageId) link.classList.add('active');
-                else link.classList.remove('active');
-            });
-            if (pages[pageId]) {
-                displayElement.innerHTML = pages[pageId];
-            }
+    function navigate(pageId) {
+        // 1. Update Links
+        const links = document.querySelectorAll('.nav-link');
+        links.forEach(link => {
+            if (link.dataset.target === pageId) link.classList.add('active');
+            else link.classList.remove('active');
+        });
+
+        // 2. Clear previous typing
+        if (currentTimeout) clearTimeout(currentTimeout);
+
+        // 3. Start Typing Logic
+        if (pages[pageId]) {
+            typeHTML(pages[pageId]);
         }
+    }
 
-        window.onload = function() {
-            navigate('home');
-        };
+    window.onload = function() {
+        navigate('home');
+    };
 
     </script>
 	
