@@ -195,6 +195,10 @@
 </head>
 <body>
 
+	<audio id="bg-audio" loop>
+    	<source src="/computer_hum.mp3" type="audio/mpeg">
+	</audio>
+
     <div class="scene-container" id="scene-container">
         <div class="retro-container">
 			<!-- The Interactive Monitor Screen -->
@@ -229,6 +233,26 @@
 		</div>
     </div>
 
+	<script>
+    	const audio = document.getElementById("bg-audio");
+    
+    	// Set volume (optional: 0.0 to 1.0)
+    	audio.volume = 0.3; 
+
+    	// Try to play automatically
+    	const playPromise = audio.play();
+
+    	if (playPromise !== undefined) {
+        	playPromise.catch(error => {
+            	// Auto-play was prevented.
+            	// Wait for the first user interaction to start audio.
+            	document.addEventListener('click', () => {
+                	audio.play();
+            	}, { once: true });
+        	});
+    	}
+	</script>
+	
     <script>
         // --- CONTENT LOGIC ---
         const pages = {
@@ -294,5 +318,6 @@ TRANSMISSION END.`
         };
 
     </script>
+	
 </body>
 </html>
