@@ -333,6 +333,15 @@ limitations under the License.
           display: table;
         }
 
+
+        /* Centering for images */
+        .center { 
+            display: block; 
+            margin-left: auto; 
+            margin-right: auto; 
+            width: 50%; 
+        } 
+
     </style>
 </head>
 <body>
@@ -510,7 +519,7 @@ limitations under the License.
             CONNECTION: SECURE<br>
             DATE: ${new Date().toLocaleDateString()}<br>`,
             about: `> LOAD BIO.HTML<br><br>
-            <figure style="width: 100px;"><img src="ceqell.webp" alt="User Profile Picture"><figcaption>Hello, I'm Ceqell!</figcaption></figure><br>
+            <figure class="center" style="width: 100px;"><img src="ceqell.webp" alt="User Profile Picture"><figcaption>Hello, I'm Ceqell!</figcaption></figure><br>
             <figure class="float-right" style="width: 125px;"><img src="ceqellposter.webp" alt="My John D. Ceqell for Retro Dev Administrator campaign poster back in 2025"><figcaption>My John D. Ceqell for <a href="https://retro-dev.fandom.com/wiki/Administrators">Retro Dev Administrator</a> campaign poster I drew myself in <a href="https://www.aseprite.org/">Aseprite</a> back in 2025</figcaption></figure><br>
             Up until 2021-2022, I still used our old samsung family laptop which we considered our only computer that had an old 
             intel and 2GB of DDR3 to play mostly roblox games, and growing up in rural Thailand you're always surrounded by old and retro tech. So yeah, I kinda grew up to love these kinds
