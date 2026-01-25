@@ -409,40 +409,44 @@ limitations under the License.
     // The "Smart" Typing Function
     function typeHTML(htmlText) {
         let i = 0;
-        displayElement.innerHTML = '<span class="cursor"></span>'; // Start empty with cursor
+        displayElement.innerHTML = '<span class="cursor"></span>'; 
 
         function type() {
             if (i < htmlText.length) {
                 let char = htmlText.charAt(i);
 
-                // If we encounter a tag opener '<', extract the WHOLE tag
+                // --- SMART SCROLL CHECK ---
+                // 1. Get the container
+                const container = document.querySelector('.crt-content');
+                // 2. Check if user is near the bottom (within 50px buffer) BEFORE we add text
+                // If this is true, we will auto-scroll. If false (user scrolled up), we won't.
+                const shouldAutoScroll = (container.scrollHeight - container.scrollTop - container.clientHeight) < 50;
+
+                // --- TYPING LOGIC ---
                 if (char === '<') {
                     let tag = '';
-                    // Loop until we find the closing '>'
                     while (htmlText.charAt(i) !== '>' && i < htmlText.length) {
                         tag += htmlText.charAt(i);
                         i++;
                     }
-                    tag += '>'; // Add the closing bracket
-                    i++; // Move past the '>'
-                    
-                    // Add the tag to the screen instantly (invisible to user, but updates structure)
-                    // We insert it BEFORE the cursor
+                    tag += '>'; 
+                    i++; 
                     displayElement.innerHTML = displayElement.innerHTML.replace('<span class="cursor"></span>', tag + '<span class="cursor"></span>');
                     
-                    // Don't wait, run the next loop immediately so there's no pause
+                    // Recursive call (don't wait)
                     type(); 
                 } 
                 else {
-                    // It's a normal character
                     i++;
                     displayElement.innerHTML = displayElement.innerHTML.replace('<span class="cursor"></span>', char + '<span class="cursor"></span>');
                     
-                    // Scroll to bottom
-                    const container = document.querySelector('.crt-content');
-                    container.scrollTop = container.scrollHeight;
+                    // --- APPLY SCROLL ---
+                    // Only force scroll if the user was ALREADY at the bottom
+                    if (shouldAutoScroll) {
+                        container.scrollTop = container.scrollHeight;
+                    }
 
-                    // Wait for typing speed (15ms)
+                    // Change the typing speed (default is 15ms) here
                     currentTimeout = setTimeout(type, 15);
                 }
             }
