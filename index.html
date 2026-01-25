@@ -246,6 +246,93 @@ limitations under the License.
             text-decoration: none;
         }
 
+        /* --- RETRO IMAGE STYLING --- */
+        .crt-content img {
+           max-width: 100%;       /* Prevent it from overflowing the screen */
+           height: auto;          /* Maintain aspect ratio */
+            display: block;        /* Put it on its own line */
+          margin: 15px 0;        /* Space above and below */
+          border: 2px solid #ffcc00; /* Amber border */
+
+           /* THE MAGIC FILTER: Turns any image into "Amber Monochrome" */
+           filter: grayscale(100%) sepia(100%) hue-rotate(5deg) saturate(400%) contrast(1.2);
+    
+          /* Optional: Add a subtle glow to the image too */
+           box-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
+
+           /* Authentic "Low Res" look */
+            image-rendering: pixelated; 
+        }
+
+        /* --- TEXT WRAPPING STYLES --- */
+        .crt-content img.float-right {
+           float: right;             /* The magic command */
+           margin: 5px 0 15px 20px; /* Adds breathing room to the Right and Bottom */
+           max-width: 40%;          /* Keep it small enough for text to fit next to it */
+           display: inline;         /* Let it sit with text */
+    
+           /* Keep the retro border/filter from your main img rule */
+          /* If you want to tweak it specifically for these small ones, add overrides here */
+        }
+
+        .crt-content img.float-left {
+           float: left;             /* The magic command */
+           margin: 5px 20px 15px 0; /* Adds breathing room to the Right and Bottom */
+           max-width: 40%;          /* Keep it small enough for text to fit next to it */
+           display: inline;         /* Let it sit with text */
+    
+           /* Keep the retro border/filter from your main img rule */
+          /* If you want to tweak it specifically for these small ones, add overrides here */
+        }
+
+        figure.float-right {
+          float: right;
+          clear: right; /* Forces this image to drop below any previous right-floated images */
+           margin: 5px 0 15px 20px; /* Space on right */
+           max-width: 40%;
+           
+          display: table; /* Helps constrain width to image size */
+        }
+
+        figure.float-left {
+         float: left;
+         clear: left; /* Forces this image to drop below any previous left-floated images */
+         margin: 5px 20px 15px 0; /* Space on left */
+         max-width: 40%;
+         
+         display: table;
+        }
+
+        /* Style the image INSIDE the figure */
+        figure img {
+            width: 100%; /* Fill the figure container */
+         height: auto;
+         display: block;
+         border: 2px solid #ffcc00; /* Your retro border */
+            
+         /* YOUR RETRO FILTER (Moved here) */ 
+         filter: grayscale(100%) sepia(100%) hue-rotate(5deg) saturate(400%) contrast(1.2);
+         box-shadow: 0 0 5px rgba(255, 204, 0, 0.5);
+         image-rendering: pixelated; 
+        }
+
+        /* Style the Caption Text */
+        figcaption {
+         caption-side: bottom;
+         color: #ffcc00;
+         font-size: 0.9em; /* Slightly smaller than body text */
+         padding-top: 5px;
+         font-style: italic;
+         text-align: center; /* Or 'left' if you prefer */
+        }
+
+        /* Optional: Clearfix (Prevents the next section from overlapping if text is too short) */
+        .clearfix::after {
+         content: "";
+          clear: both;
+          display: table;
+        }
+
     </style>
 </head>
 <body>
@@ -274,6 +361,9 @@ limitations under the License.
 							<a class="nav-link" data-target="projects" onclick="navigate('projects')">[PROJECTS]</a>
 							<a class="nav-link" data-target="contact" onclick="navigate('contact')">[CONTACT]</a>
                             <a class="nav-link" data-target="sourcecode" onclick="navigate('sourcecode')">[SOURCE]</a>
+
+                            <a class="nav-link" id="anim-toggle" onclick="toggleAnimation()">[FX: ON]</a>
+                            <a class="nav-link" id="audio-toggle" onclick="toggleAudio()">[AUDIO: ON]</a>
 						</nav>
 						<div>----------------------------------------</div>
 						<div><br></div>
@@ -297,6 +387,24 @@ limitations under the License.
         // 1. SETUP BACKGROUND HUM
         const baseVolume = 0.5; // The normal volume level
         humAudio.volume = baseVolume; 
+
+        /* --- AUDIO TOGGLE SYSTEM --- */
+        let isAudioEnabled = true; // Default to ON
+
+        function toggleAudio() {
+            isAudioEnabled = !isAudioEnabled; // Flip state
+
+            // 1. Update Button Text
+            const btn = document.getElementById('audio-toggle');
+            btn.innerText = isAudioEnabled ? "[AUDIO: ON]" : "[AUDIO: OFF]";
+
+            // 2. Handle Background Hum
+            // We use .muted instead of .pause so the loop keeps running silently
+            humAudio.muted = !isAudioEnabled; 
+
+            // 3. Play a confirmation click (only if we just turned it ON)
+            if (isAudioEnabled) playClickSound();
+        }
 
         // Custom Loop: When finished, go back to 10s
         humAudio.addEventListener('ended', function() {
@@ -344,9 +452,12 @@ limitations under the License.
         function playClickSound() {
             // We create a new Audio object for every click so they can overlap 
             // (if the user clicks fast, it won't cut off the previous sound)
-            const sound = new Audio(clickSource);
-            sound.volume = 0.3;
-            sound.play();
+            // Only play if audio is enabled!
+            if (isAudioEnabled) {
+                const sound = new Audio(clickSource);
+                sound.volume = 0.3;
+                sound.play();
+            }
         }
 
         document.addEventListener("visibilitychange", () => {
@@ -365,6 +476,29 @@ limitations under the License.
             }
         });
 
+       /* --- ANIMATION TOGGLE SYSTEM --- */
+        let isAnimEnabled = true; 
+        let currentPageId = 'home'; // NEW: Track the current page
+
+      function toggleAnimation() {
+            isAnimEnabled = !isAnimEnabled; // Flip the state
+        
+            // Update the button text
+            const btn = document.getElementById('anim-toggle');
+            btn.innerText = isAnimEnabled ? "[FX: ON]" : "[FX: OFF]";
+        
+            // Optional: Play click sound
+            playClickSound();
+
+            // NEW LOGIC: If we just turned it OFF, reload the page instantly
+            if (!isAnimEnabled) {
+                // Because isAnimEnabled is now false, calling this will 
+                // trigger the "Instant Load" logic we wrote earlier.
+                navigate(currentPageId);
+            }
+
+        }
+
         // --- CONTENT LOGIC ---
         const pages = {
             home: `WELCOME TO MY WEBSITE!
@@ -375,8 +509,9 @@ limitations under the License.
             STATUS: ONLINE<br>
             CONNECTION: SECURE<br>
             DATE: ${new Date().toLocaleDateString()}<br>`,
-            about: `> LOAD BIO.TXT<br><br>
-
+            about: `> LOAD BIO.HTML<br><br>
+            <figure style="width: 100px;"><img src="ceqell.webp" alt="User Profile Picture"><figcaption>Ceqell</figcaption></figure><br>
+            <figure class="float-right" style="width: 125px;"><img src="ceqellposter.webp" alt="My John D. Ceqell for Retro Dev Administrator campaign poster back in 2025"><figcaption>My John D. Ceqell for <a href="https://retro-dev.fandom.com/wiki/Administrators">Retro Dev Administrator</a> campaign poster I drew myself in <a href="https://www.aseprite.org/">Aseprite</a> back in 2025</figcaption></figure><br>
             Up until 2021-2022, I still used our old samsung family laptop which we considered our only computer that had an old 
             intel and 2GB of DDR3 to play mostly roblox games, and growing up in rural Thailand you're always surrounded by old and retro tech. So yeah, I kinda grew up to love these kinds
             of old, retro and vintage machines and software made way before I was even concieved. I always like breaking apart toys and other electronics and seeing how they all work with all the 
@@ -386,7 +521,9 @@ limitations under the License.
             * HTML / CSS / JS<br>
             * ELECTRONICS<br>
             * SYSTEM ARCHITECTURE<br>
-            * UNIX-LIKE OPERATING SYSTEMS<br>`,
+            * UNIX-LIKE OPERATING SYSTEMS<br>
+            <figure><img src="mint1.webp" alt="mint1"></figure>
+            <figure><img src="mint2.webp" alt="mint2"><figcaption>My Linux Mint 22.1 Xfce desktop</figcaption></figure><br>`,
             projects: `> LIST PROJECTS_DIR/<br><br>
 
             WIP<br>`,
@@ -399,7 +536,7 @@ limitations under the License.
             sourcecode: `> OPEN SRC.TXT<br><br>
 
             THIS WEBSITE IS LICENSED UNDER THE APACHE LICENSE 2.0.<br>
-            THE SOURCE CODE OF WHICH, CAN BE VIEWED HERE:<br><br>
+            THE SOURCE CODE AND LICENSE TEXT OF WHICH, CAN BE VIEWED HERE:<br><br>
             <a href="https://github.com/Ceqell/ceqell" class="tab" target="_blank">https://github.com/Ceqell/ceqell</a><br>`
         };
 
@@ -454,20 +591,36 @@ limitations under the License.
         type();
     }
 
+    /* --- UPDATED NAVIGATION FUNCTION --- */
     function navigate(pageId) {
-        // 1. Update Links
+        currentPageId = pageId;
+        // 1. Update Links (Active State)
         const links = document.querySelectorAll('.nav-link');
         links.forEach(link => {
-            if (link.dataset.target === pageId) link.classList.add('active');
-            else link.classList.remove('active');
+            // Don't mess with the FX button's active state, only page links
+            if (link.id !== 'anim-toggle') {
+                if (link.dataset.target === pageId) link.classList.add('active');
+                else link.classList.remove('active');
+            }
         });
 
-        // 2. Clear previous typing
+        // 2. Clear any running typing loop immediately
         if (currentTimeout) clearTimeout(currentTimeout);
 
-        // 3. Start Typing Logic
+        // 3. Load Content
         if (pages[pageId]) {
-            typeHTML(pages[pageId]);
+            if (isAnimEnabled) {
+                // OPTION A: Typing Animation (Old Way)
+                typeHTML(pages[pageId]);
+            } else {
+                // OPTION B: Instant Load (New Way)
+                // Just dump the text + cursor immediately
+                displayElement.innerHTML = pages[pageId] + '<span class="cursor"></span>';
+                
+                // Force scroll to bottom to match the typing behavior behavior
+                const container = document.querySelector('.crt-content');
+                container.scrollTop = container.scrollHeight;
+            }
         }
     }
 
