@@ -1,12 +1,298 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-<title>ceqellsite</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TERMINAL_ACCESS_V1.0</title>
+    <style>
+        /* --- RESET & BASE --- */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #000;
+            height: 100vh;
+            width: 100vw;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+		/* --- LAYOUT CONTAINER --- */
+		.scene-container {
+			position: relative;
+			width: 100vw;
+			height: 100vh;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			overflow: hidden; /* Prevents scrollbars */
+		}
+
+        /* The Monitor Overlay (Foreground) */
+		.monitor-overlay {
+			position: relative; /* Must be positioned for z-index to work */
+			z-index: 20;
+			width: 100%;
+			height: 100%;
+			display: block;
+			pointer-events: none; /* Allows you to click text "through" the hole if needed */
+		}
+
+        /* --- NEW WRAPPER --- */
+		.retro-container {
+			position: relative;
+    
+			/* 1. YOUR EXACT IMAGE DIMENSIONS */
+			--img-width: 2752; 
+			--img-height: 1535;
+
+			/* 2. THE MATH (Keeps the aspect ratio locked) */
+			width: min(100vw, calc(100vh * (var(--img-width) / var(--img-height))));
+			height: min(100vh, calc(100vw * (var(--img-height) / var(--img-width))));
+		}
+
+		/* --- THE MONITOR SCREEN --- */
+		.monitor-screen {
+			position: absolute;
+			z-index: 1;
+			overflow: hidden;
+    
+			/* CALCULATED VALUES FROM YOUR IMAGE */
+			top: 9.75%;
+			left: 38.53%;
+			width: 26.94%;
+			height: 37%;
+
+			/* CRT Styling */
+			background-color: #1a1a1a;
+			border-radius: 2px; /* Slight rounded corner for CRT feel */
+		}
+
+        /* --- RETRO AESTHETICS --- */
+        :root {
+            --amber: #ffcc00; /* Yellowish/gold amber */
+            --amber-dim: #997a00;
+            --scanline-color: rgba(0, 0, 0, 0.5);
+        }
+
+        .crt-content {
+            width: 100%;
+            height: 100%;
+            background-color: #120d00;
+            color: var(--amber);
+            padding: 20px;
+            font-size: 12px;
+            line-height: 1.3;
+            overflow-y: auto;
+            overflow-x: hidden;
+            
+            text-shadow: 0 0 2px var(--amber-dim), 0 0 5px var(--amber);
+            scrollbar-width: thin;
+            scrollbar-color: var(--amber) #120d00;
+        }
+
+        .crt-content::-webkit-scrollbar {
+            width: 8px;
+        }
+        .crt-content::-webkit-scrollbar-track {
+            background: #120d00;
+        }
+        .crt-content::-webkit-scrollbar-thumb {
+            background-color: var(--amber);
+            border: 1px solid #120d00;
+        }
+
+        /* Scanlines */
+        .scanlines {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(
+                to bottom,
+                rgba(255,255,255,0),
+                rgba(255,255,255,0) 50%,
+                rgba(0,0,0,0.2) 50%,
+                rgba(0,0,0,0.2)
+            );
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 20;
+            opacity: 0.6;
+        }
+
+        /* Flicker */
+        .flicker {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 176, 0, 0.02);
+            opacity: 0;
+            z-index: 21;
+            pointer-events: none;
+            animation: flicker 0.15s infinite;
+        }
+
+        @keyframes flicker {
+            0% { opacity: 0.02; }
+            50% { opacity: 0.05; }
+            100% { opacity: 0.02; }
+        }
+
+        /* --- CONTENT STYLING --- */
+        h1, h2, h3 {
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--amber);
+            display: inline-block;
+        }
+
+        p {
+            margin-bottom: 15px;
+        }
+
+        .nav-link {
+            display: inline-block;
+            margin-right: 15px;
+            cursor: pointer;
+            text-decoration: none;
+            color: var(--amber);
+            border: 1px solid transparent;
+            padding: 2px 5px;
+        }
+
+        .nav-link:hover, .nav-link.active {
+            background-color: var(--amber);
+            color: #000;
+            text-shadow: none;
+            font-weight: bold;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 8px;
+            height: 15px;
+            background-color: var(--amber);
+            animation: blink 1s step-end infinite;
+            vertical-align: middle;
+        }
+
+        @keyframes blink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
+        }
+
+    </style>
 </head>
 <body>
 
-<h1>ceqellsite</h1>
-<p>hoi!!!!!</p>
+    <div class="scene-container" id="scene-container">
+        <div class="retro-container">
+			<!-- The Interactive Monitor Screen -->
+			<div class="monitor-screen" id="monitor-box">
+				<div class="scanlines"></div>
+				<div class="flicker"></div>
+            
+				<div class="crt-content">
+					<div id="header-area">
+						<div>OS: WEBKIT_KERNEL_V4.2</div>
+						<div>MEM: 64KB OK</div>
+						<div><br></div>
+						<h1>USER_HOME</h1>
+						<div><br></div>
+						<nav>
+							<a class="nav-link active" data-target="home" onclick="navigate('home')">[HOME]</a>
+							<a class="nav-link" data-target="about" onclick="navigate('about')">[ABOUT]</a>
+							<a class="nav-link" data-target="projects" onclick="navigate('projects')">[PROJECTS]</a>
+							<a class="nav-link" data-target="contact" onclick="navigate('contact')">[CONTACT]</a>
+						</nav>
+						<div>----------------------------------------</div>
+						<div><br></div>
+					</div>
 
+                <div id="content-display"></div>
+                <span class="cursor"></span>
+            </div>
+        </div>
+
+			<!-- The Monitor Overlay -->
+			<img class="monitor-overlay" src="https://i.ibb.co/bMZNc2gm/1c779d46-f7af-4f44-86c2-8ad0b1515877-1-2.webp" alt="Retro Monitor Overlay">
+		</div>
+    </div>
+
+    <script>
+        // --- CONTENT LOGIC ---
+        const pages = {
+            home: `WELCOME TO MY PERSONAL TERMINAL.
+            
+THIS IS A TEXT-BASED INTERFACE RUNNING ON A LEGACY SYSTEM.
+USE THE NAVIGATION BAR ABOVE TO ACCESS FILES.
+
+STATUS: ONLINE
+CONNECTION: SECURE
+DATE: ${new Date().toLocaleDateString()}`,
+            about: `> LOAD BIO.TXT
+
+I AM A CREATIVE DEVELOPER WITH A PASSION FOR RETRO TECHNOLOGY AND MINIMALIST DESIGN. And up until 2021-2022, I still used our old samsung family laptop which we considered our only computer that had an old intel and 2GB of DDR3 to play mostly roblox games, and growing up in rural Thailand you're always surrounded by old and retro tech.
+
+SKILLS:
+* HTML / CSS / JS
+* PIXEL ART
+* SYSTEM ARCHITECTURE`,
+            projects: `> LIST PROJECTS_DIR/
+
+WIP`,
+            contact: `> OPEN MAIL_CLIENT
+
+EMAIL: CEQELL@CEQELL.ME
+GITHUB: GITHUB.COM/CEQELL
+
+TRANSMISSION END.`
+        };
+
+        let currentTimeout;
+        const displayElement = document.getElementById('content-display');
+        const typingSpeed = 10;
+
+        function typeText(text) {
+            if (currentTimeout) clearTimeout(currentTimeout);
+            displayElement.innerHTML = '';
+            let i = 0;
+            function type() {
+                if (i < text.length) {
+                    if (text.charAt(i) === '\n') displayElement.innerHTML += '<br>';
+                    else displayElement.innerHTML += text.charAt(i);
+                    i++;
+                    const container = document.querySelector('.crt-content');
+                    container.scrollTop = container.scrollHeight;
+                    currentTimeout = setTimeout(type, typingSpeed);
+                }
+            }
+            type();
+        }
+
+        function navigate(pageId) {
+            const links = document.querySelectorAll('.nav-link');
+            links.forEach(link => {
+                if (link.dataset.target === pageId) link.classList.add('active');
+                else link.classList.remove('active');
+            });
+            if (pages[pageId]) typeText(pages[pageId]);
+        }
+
+        window.onload = function() {
+            navigate('home');
+        };
+
+    </script>
 </body>
-</html> 
+</html>
