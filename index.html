@@ -1,3 +1,19 @@
+<!--
+Copyright 2026 Khonthee Jaroensiriphan
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+-->
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -195,9 +211,9 @@
 </head>
 <body>
 
-	<audio id="bg-audio" loop>
-    	<source src="/computer_hum.mp3" type="audio/mpeg">
-	</audio>
+	<audio id="bg-audio" src="/computer_hum.mp3"></audio>
+
+    <audio id="click-audio" src="/mouse_click.mp3" preload="auto"></audio>
 
     <div class="scene-container" id="scene-container">
         <div class="retro-container">
@@ -218,6 +234,7 @@
 							<a class="nav-link" data-target="about" onclick="navigate('about')">[ABOUT]</a>
 							<a class="nav-link" data-target="projects" onclick="navigate('projects')">[PROJECTS]</a>
 							<a class="nav-link" data-target="contact" onclick="navigate('contact')">[CONTACT]</a>
+                            <a class="nav-link" data-target="sourcecode" onclick="navigate('sourcecode')">[SOURCE]</a>
 						</nav>
 						<div>----------------------------------------</div>
 						<div><br></div>
@@ -232,28 +249,47 @@
 			<img class="monitor-overlay" src="https://i.ibb.co/bMZNc2gm/1c779d46-f7af-4f44-86c2-8ad0b1515877-1-2.webp" alt="Retro Monitor Overlay">
 		</div>
     </div>
-
-	<script>
-    	const audio = document.getElementById("bg-audio");
-    
-    	// Set volume (optional: 0.0 to 1.0)
-    	audio.volume = 0.3; 
-
-    	// Try to play automatically
-    	const playPromise = audio.play();
-
-    	if (playPromise !== undefined) {
-        	playPromise.catch(error => {
-            	// Auto-play was prevented.
-            	// Wait for the first user interaction to start audio.
-            	document.addEventListener('click', () => {
-                	audio.play();
-            	}, { once: true });
-        	});
-    	}
-	</script>
 	
     <script>
+
+        /* --- AUDIO SYSTEM --- */
+        const humAudio = document.getElementById("bg-audio");
+        const clickSource = "/mouse_click.mp3"; // Path to your click file
+
+        // 1. SETUP BACKGROUND HUM
+        humAudio.volume = 0.3; // Keep it subtle
+
+        // Listen for the end of the track
+        humAudio.addEventListener('ended', function() {
+            this.currentTime = 10; // Jump to 10 seconds
+            this.play();           // Play again
+        });
+
+        // Attempt Auto-play
+        const playPromise = humAudio.play();
+        if (playPromise !== undefined) {
+            playPromise.catch(error => {
+                // If blocked, wait for first interaction
+                document.addEventListener('click', () => {
+                    humAudio.play();
+                }, { once: true });
+            });
+        }
+
+        // 2. SETUP CLICK SOUNDS
+        function playClickSound() {
+            // We create a new Audio object for every click so they can overlap 
+            // (if the user clicks fast, it won't cut off the previous sound)
+            const sound = new Audio(clickSource);
+            sound.volume = 0.5;
+            sound.play();
+        }
+
+        // Attach click sound to all nav links
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', playClickSound);
+        });
+
         // --- CONTENT LOGIC ---
         const pages = {
             home: `WELCOME TO MY PERSONAL TERMINAL.
@@ -280,7 +316,14 @@ WIP`,
 EMAIL: CEQELL@CEQELL.ME
 GITHUB: GITHUB.COM/CEQELL
 
-TRANSMISSION END.`
+TRANSMISSION END.`,
+            sourcecode: `> OPEN SRC.TXT
+
+THIS WEBSITE IS LICENSED UNDER THE APACHE LICENSE 2.0.
+THE SOURCE CODE OF WHICH, CAN BE VIEWED HERE:
+<a href="https://github.com/Ceqell/ceqell">https://github.com/Ceqell/ceqell</a>
+
+`
         };
 
         let currentTimeout;
