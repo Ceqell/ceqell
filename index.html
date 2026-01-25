@@ -266,7 +266,7 @@ limitations under the License.
 						<div>OS: WEBKIT_KERNEL_V4.2</div>
 						<div>MEM: 64KB OK</div>
 						<div><br></div>
-						<h1>USER_HOME</h1>
+						<h1>ceqellsite</h1>
 						<div><br></div>
 						<nav>
 							<a class="nav-link active" data-target="home" onclick="navigate('home')">[HOME]</a>
@@ -292,15 +292,16 @@ limitations under the License.
 
         /* --- AUDIO SYSTEM --- */
         const humAudio = document.getElementById("bg-audio");
-        const clickSource = "mouse_click.mp3"; // Path to your click file
+        const clickSource = "mouse_click.mp3"; 
 
         // 1. SETUP BACKGROUND HUM
-        humAudio.volume = 0.5; // Keep it subtle
+        const baseVolume = 0.5; // The normal volume level
+        humAudio.volume = baseVolume; 
 
-        // Listen for the end of the track
+        // Custom Loop: When finished, go back to 10s
         humAudio.addEventListener('ended', function() {
-            this.currentTime = 10; // Jump to 10 seconds
-            this.play();           // Play again
+            this.currentTime = 10; 
+            this.play();           
         });
 
         // Attempt Auto-play
@@ -308,11 +309,36 @@ limitations under the License.
         if (playPromise !== undefined) {
             playPromise.catch(error => {
                 // If blocked, wait for first interaction
-                document.addEventListener('click', () => {
-                    humAudio.play();
-                }, { once: true });
-            });
-        }
+               document.addEventListener('click', () => {
+                   humAudio.play();
+               }, { once: true });
+          });
+       }
+
+      /* --- NEW: FADE OUT ON TAB SWITCH --- */
+      let fadeTimer;
+
+      function fadeAudio(targetVolume) {
+          // Clear any currently running fade to prevent "fighting"
+          if (fadeTimer) clearInterval(fadeTimer);
+
+          fadeTimer = setInterval(() => {
+              let current = humAudio.volume;
+
+              // If we are close enough to the target, snap to it and stop
+              if (Math.abs(current - targetVolume) < 0.02) {
+                  humAudio.volume = targetVolume;
+                  clearInterval(fadeTimer);
+              } else {
+                  // Otherwise, move volume towards target by 0.02 step
+                  if (current > targetVolume) {
+                      humAudio.volume = Math.max(0, current - 0.02);
+                  } else {
+                      humAudio.volume = Math.min(baseVolume, current + 0.02);
+                  }
+              }
+          }, 50); // Run every 50ms for a smooth fade
+      }
 
         // 2. SETUP CLICK SOUNDS
         function playClickSound() {
@@ -322,6 +348,14 @@ limitations under the License.
             sound.volume = 0.3;
             sound.play();
         }
+
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) {
+              fadeAudio(0); // Tab hidden? Fade to 0
+          } else {
+              fadeAudio(baseVolume); // Tab back? Fade to 0.5
+          }
+      });
 
         // Attach click sound to all nav links
         document.addEventListener('click', function(e) {
@@ -333,7 +367,7 @@ limitations under the License.
 
         // --- CONTENT LOGIC ---
         const pages = {
-            home: `WELCOME TO MY PERSONAL TERMINAL.
+            home: `WELCOME TO MY WEBSITE!
             <br><br>
             THIS IS A TEXT-BASED INTERFACE RUNNING ON A LEGACY SYSTEM.<br>
             USE THE NAVIGATION BAR ABOVE TO ACCESS FILES.
@@ -343,19 +377,23 @@ limitations under the License.
             DATE: ${new Date().toLocaleDateString()}<br>`,
             about: `> LOAD BIO.TXT<br><br>
 
-            I AM A CREATIVE DEVELOPER WITH A PASSION FOR RETRO TECHNOLOGY AND MINIMALIST DESIGN. And up until 2021-2022, I still used our old samsung family laptop which we considered our only computer that had an old intel and 2GB of DDR3 to play mostly roblox games, and growing up in rural Thailand you're always surrounded by old and retro tech.
+            Up until 2021-2022, I still used our old samsung family laptop which we considered our only computer that had an old 
+            intel and 2GB of DDR3 to play mostly roblox games, and growing up in rural Thailand you're always surrounded by old and retro tech. So yeah, I kinda grew up to love these kinds
+            of old, retro and vintage machines and software made way before I was even concieved. I always like breaking apart toys and other electronics and seeing how they all work with all the 
+            circuit wires and what not, tinkering and then eventually making things as I grew older, it's been a nice journey so far.
             <br><br>
-            SKILLS:<br>
+            STUFF I DO:<br>
             * HTML / CSS / JS<br>
-            * PIXEL ART<br>
-            * SYSTEM ARCHITECTURE<br>`,
+            * ELECTRONICS<br>
+            * SYSTEM ARCHITECTURE<br>
+            * UNIX-LIKE OPERATING SYSTEMS<br>`,
             projects: `> LIST PROJECTS_DIR/<br><br>
 
             WIP<br>`,
             contact: `> OPEN MAIL_CLIENT<br><br>
 
-            EMAIL: CEQELL@CEQELL.ME<br>
-            GITHUB: GITHUB.COM/CEQELL<br><br>
+            EMAIL: ceqell@ceqell.me<br>
+            GITHUB: <a href="https://github.com/Ceqell">https://github.com/Ceqell</a><br><br>
 
             TRANSMISSION END.<br>`,
             sourcecode: `> OPEN SRC.TXT<br><br>
@@ -404,8 +442,8 @@ limitations under the License.
                     const container = document.querySelector('.crt-content');
                     container.scrollTop = container.scrollHeight;
 
-                    // Wait for typing speed (20ms)
-                    currentTimeout = setTimeout(type, 20);
+                    // Wait for typing speed (15ms)
+                    currentTimeout = setTimeout(type, 15);
                 }
             }
         }
