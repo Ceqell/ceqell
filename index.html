@@ -374,38 +374,45 @@ limitations under the License.
 
         /* --- SMALL PHONES (Portrait Mode) --- */
         @media (max-width: 480px) {
-    
-            /* 1. Zoom into the monitor slightly */
-            /* This trick "crops" the background image so the monitor fills more of the phone screen */
-            .retro-container {
-            width: 100vw;
-            height: 50vh; /* Force height to fit better */
-            /* You might need to tweak this depending on your image */
+
+            /* 1. Enable Scrolling on the parent container */
+            .scene-container {
+                overflow: auto; /* Auto = Show scrollbars if image is too big */
+                justify-content: flex-start; /* Align left so you scroll to the right */
+                align-items: center; /* Keep it vertically centered */
             }
 
+            /* 2. Size the monitor by Height, not Width */
+            .retro-container {
+                /* Make the monitor take up 55% of the screen height */
+                height: 55vh; 
+        
+                /* Calculate the width naturally based on that height (No Squishing!) */
+                width: calc(55vh * (var(--img-width) / var(--img-height)));
+        
+                /* Prevent flexbox from crushing it */
+                flex-shrink: 0;
+        
+                /* Center it horizontally in the scroll area */
+                margin: 0 auto;
+            }
+
+            /* 3. Text Sizing */
             .crt-content {
-                font-size: 9px; /* The smallest legible size */
-                padding: 5px;   /* Almost no padding */
-                line-height: 1.0; 
+                /* Since the monitor is bigger now (zoomed in), we can bump the text up slightly */
+                font-size: 10px; 
+                padding: 5px;   
+                line-height: 1.1; 
             }
 
             .nav-link {
-                display: inline-block; /* Keep them inline if possible */
-                margin-right: 3px;
-                font-size: 9px;
+                display: inline-block; 
+                margin-right: 5px;
+                font-size: 10px;
             }
     
-            /* If the nav is STILL too wide, un-comment this to stack them: */
-            /*
-            nav {
-                display: flex;
-                flex-wrap: wrap;
-                justify-content: center;
-            }
-            */
-
             h1 {
-                font-size: 1.1em;
+                font-size: 1.2em;
             }
         }
 
