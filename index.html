@@ -342,6 +342,49 @@ limitations under the License.
             width: 50%; 
         } 
 
+        /* --- RESPONSIVE MOBILE TWEAKS --- */
+        @media (max-width: 768px) {
+            /* When on tablets or phones: */
+    
+            .crt-content {
+                /* Drop font size significantly (VT323 needs to be at least 14px to be readable) */
+                font-size: 14px; 
+                padding: 10px; /* Reduce padding so we have more room for text */
+            }
+
+            .nav-link {
+                /* Make links smaller and tighter */
+                margin-right: 8px;
+                padding: 2px 3px;
+            }
+
+            h1 {
+                font-size: 1.5em; /* Shrink the headers slightly */
+            }
+    
+            /* Adjust the floating images for tiny screens */
+            figure.float-right, figure.float-left {
+                max-width: 50%; /* Let images take up half the tiny screen */
+                margin: 0 0 10px 10px;
+            }
+        }
+
+        /* --- SUPER SMALL PHONES (Portrait Mode) --- */
+        @media (max-width: 480px) {
+            .crt-content {
+                font-size: 12px; /* Smallest readable size */
+                line-height: 1.1;
+            }
+    
+            /* On tiny screens, disable floats so images stack nicely */
+            figure.float-right, figure.float-left {
+                float: none;
+                max-width: 100%;
+                margin: 10px 0;
+                display: block;
+            }
+        }
+
     </style>
 </head>
 <body>
