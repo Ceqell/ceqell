@@ -1,4 +1,6 @@
 # ceqell
 open source!!!!!!!
 
-awesome website: https://ceqell.me
+awesome website: https://www.ceqell.me
+
+![](coolgifs/terminal.gif)
