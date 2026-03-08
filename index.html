@@ -704,48 +704,53 @@ limitations under the License.
     // The "Smart" Typing Function
     function typeHTML(htmlText) {
         let i = 0;
+        let currentHTML = ''; // <-- NEW: Store the pristine HTML here
         displayElement.innerHTML = '<span class="cursor"></span>'; 
 
         function type() {
-        if (i < htmlText.length) {
-            let char = htmlText.charAt(i);
+            if (i < htmlText.length) {
+                let char = htmlText.charAt(i);
 
-            // --- SMART SCROLL CHECK ---
-            const container = document.querySelector('.crt-content');
-            const shouldAutoScroll = (container.scrollHeight - container.scrollTop - container.clientHeight) < 50;
+                // --- SMART SCROLL CHECK ---
+                const container = document.querySelector('.crt-content');
+                const shouldAutoScroll = (container.scrollHeight - container.scrollTop - container.clientHeight) < 50;
 
-            // --- TYPING LOGIC ---
-            if (char === '<') {
-                let tag = '';
-                while (htmlText.charAt(i) !== '>' && i < htmlText.length) {
-                    tag += htmlText.charAt(i);
+                // --- TYPING LOGIC ---
+                if (char === '<') {
+                    let tag = '';
+                    while (htmlText.charAt(i) !== '>' && i < htmlText.length) {
+                        tag += htmlText.charAt(i);
+                        i++;
+                    }
+                    tag += '>'; 
+                    i++; 
+                    
+                    // Update our pristine string, THEN write to DOM
+                    currentHTML += tag;
+                    displayElement.innerHTML = currentHTML + '<span class="cursor"></span>';
+                    
+                    type(); // Recursive call (don't wait)
+                } 
+                else {
+                    // Update our pristine string, THEN write to DOM
+                    currentHTML += char;
                     i++;
-                }
-                tag += '>'; 
-                i++; 
-                displayElement.innerHTML = displayElement.innerHTML.replace('<span class="cursor"></span>', tag + '<span class="cursor"></span>');
-                
-                type(); // Recursive call (don't wait)
-            } 
-            else {
-                i++;
-                displayElement.innerHTML = displayElement.innerHTML.replace('<span class="cursor"></span>', char + '<span class="cursor"></span>');
-                
-                // --- APPLY SCROLL ---
-                if (shouldAutoScroll) {
-                    container.scrollTop = container.scrollHeight;
-                }
+                    displayElement.innerHTML = currentHTML + '<span class="cursor"></span>';
+                    
+                    // --- APPLY SCROLL ---
+                    if (shouldAutoScroll) {
+                        container.scrollTop = container.scrollHeight;
+                    }
 
-                currentTimeout = setTimeout(type, 15);
-            }
-        } else {
-            // The text has finished typing entirely
-            // Now it is safe to fetch the database entries.
-            if (currentPageId === 'guestbook') {
-                loadGuestbookEntries();
+                    currentTimeout = setTimeout(type, 15);
+                }
+            } else {
+                // The text has finished typing entirely!
+                if (currentPageId === 'guestbook') {
+                    loadGuestbookEntries();
+                }
             }
         }
-    }
         type();
     }
 
