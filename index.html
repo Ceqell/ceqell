@@ -707,49 +707,45 @@ limitations under the License.
         displayElement.innerHTML = '<span class="cursor"></span>'; 
 
         function type() {
-            if (i < htmlText.length) {
-                let char = htmlText.charAt(i);
+        if (i < htmlText.length) {
+            let char = htmlText.charAt(i);
 
-                // --- SMART SCROLL CHECK ---
-                // 1. Get the container
-                const container = document.querySelector('.crt-content');
-                // 2. Check if user is near the bottom (within 50px buffer) BEFORE we add text
-                // If this is true, we will auto-scroll. If false (user scrolled up), we won't.
-                const shouldAutoScroll = (container.scrollHeight - container.scrollTop - container.clientHeight) < 50;
+            // --- SMART SCROLL CHECK ---
+            const container = document.querySelector('.crt-content');
+            const shouldAutoScroll = (container.scrollHeight - container.scrollTop - container.clientHeight) < 50;
 
-                // --- TYPING LOGIC ---
-                if (char === '<') {
-                    let tag = '';
-                    while (htmlText.charAt(i) !== '>' && i < htmlText.length) {
-                        tag += htmlText.charAt(i);
-                        i++;
-                    }
-                    tag += '>'; 
-                    i++; 
-                    displayElement.innerHTML = displayElement.innerHTML.replace('<span class="cursor"></span>', tag + '<span class="cursor"></span>');
-                    
-                    // Recursive call (don't wait)
-                    type(); 
-                } 
-                else {
+            // --- TYPING LOGIC ---
+            if (char === '<') {
+                let tag = '';
+                while (htmlText.charAt(i) !== '>' && i < htmlText.length) {
+                    tag += htmlText.charAt(i);
                     i++;
-                    displayElement.innerHTML = displayElement.innerHTML.replace('<span class="cursor"></span>', char + '<span class="cursor"></span>');
-                    
-                    // --- APPLY SCROLL ---
-                    // Only force scroll if the user was ALREADY at the bottom
-                    if (shouldAutoScroll) {
-                        container.scrollTop = container.scrollHeight;
-                    }
-
-                    // Change the typing speed (default is 15ms) here
-                    currentTimeout = setTimeout(type, 15);
-
-                    if (currentPageId === 'guestbook') {
-                        loadGuestbookEntries();
-                    }
                 }
+                tag += '>'; 
+                i++; 
+                displayElement.innerHTML = displayElement.innerHTML.replace('<span class="cursor"></span>', tag + '<span class="cursor"></span>');
+                
+                type(); // Recursive call (don't wait)
+            } 
+            else {
+                i++;
+                displayElement.innerHTML = displayElement.innerHTML.replace('<span class="cursor"></span>', char + '<span class="cursor"></span>');
+                
+                // --- APPLY SCROLL ---
+                if (shouldAutoScroll) {
+                    container.scrollTop = container.scrollHeight;
+                }
+
+                currentTimeout = setTimeout(type, 15);
+            }
+        } else {
+            // The text has finished typing entirely
+            // Now it is safe to fetch the database entries.
+            if (currentPageId === 'guestbook') {
+                loadGuestbookEntries();
             }
         }
+    }
         type();
     }
 
