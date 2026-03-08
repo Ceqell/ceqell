@@ -476,6 +476,45 @@ limitations under the License.
             opacity: 0.8;
             margin-bottom: 3px;
         }
+
+        /* --- 88x31 BUTTON GRID --- */
+        .button-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px; /* Space between buttons */
+            margin-top: 15px;
+            margin-bottom: 15px;
+        }
+
+        .button-grid img {
+            width: 88px;
+            height: 31px;
+            margin: 0; /* Override your default img margin */
+            border: 1px solid var(--amber-dim); /* Subtle border */
+            /* NOTE: Your global img filter will automatically turn these amber! */
+        }
+
+        .button-grid a:hover {
+            background-color: transparent; /* Prevent the amber block hover effect on images */
+        }
+
+        .button-grid a:hover img {
+            border-color: var(--amber);
+            box-shadow: 0 0 8px var(--amber);
+        }
+
+        .code-box {
+            background-color: #000;
+            color: var(--amber);
+            border: 1px dashed var(--amber);
+            padding: 5px;
+            font-family: inherit;
+            font-size: 10px;
+            width: 100%;
+            resize: none;
+            height: 50px;
+            margin-top: 5px;
+        }
     </style>
 </head>
 <body>
@@ -503,6 +542,7 @@ limitations under the License.
 							<a class="nav-link" data-target="about" onclick="navigate('about')">[ABOUT]</a>
                             <a class="nav-link" data-target="guestbook" onclick="navigate('guestbook')">[GUESTBOOK]</a>
 							<a class="nav-link" data-target="projects" onclick="navigate('projects')">[PROJECTS]</a>
+                            <a class="nav-link" data-target="links" onclick="navigate('links')">[LINKS]</a>
 							<a class="nav-link" data-target="contact" onclick="navigate('contact')">[CONTACT]</a>
                             <a class="nav-link" data-target="sourcecode" onclick="navigate('sourcecode')">[SOURCE]</a>
 
@@ -695,7 +735,26 @@ limitations under the License.
             <br>> READING SECTORS...
             <div id="guestbook-list">
                 <!-- Entries will load here -->
-            </div>`
+            </div>`,
+            links: `> OPEN NETWORK_LINKS.TXT<br><br>
+            
+            ESTABLISHED CONNECTIONS TO OTHER NODES IN THE NETWORK.<br><br>
+            
+            <div class="button-grid">
+                <!-- Replace the hrefs and srcs with actual sites you like! -->
+                <a href="https://neocities.org" target="_blank"><img src="https://neocities.org/img/neocities.gif" alt="Neocities"></a>
+                <a href="https://yesterweb.org" target="_blank"><img src="https://yesterweb.org/img/button.gif" alt="Yesterweb"></a>
+                <a href="https://dimden.dev" target="_blank"><img src="https://dimden.dev/services/images/88x31.gif" alt="Dimden"></a>
+                <a href="https://bettysgraphics.neocities.org/" target="_blank"><img src="coolgifs/bettysgraphics.gif" alt="betty"></a>
+            </div>
+
+            <br>----------------------------------------<br><br>
+            
+            > ADD MY NODE TO YOUR SYSTEM:<br>
+            COPY THE EXECUTABLE CODE BELOW:<br>
+            
+            <textarea class="code-box" readonly><a href="https://ceqell.me" target="_blank"><img src="coolgifs/ceqellbanner2.gif" alt="ceqellsite" width="88" height="31"></a></textarea>
+            `
         };
 
         const displayElement = document.getElementById('content-display');
