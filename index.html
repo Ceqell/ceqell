@@ -419,6 +419,63 @@ limitations under the License.
             }
         }
 
+        /* --- GUESTBOOK STYLING --- */
+        .retro-form {
+            margin-top: 15px;
+            border: 1px dashed var(--amber);
+            padding: 10px;
+        }
+
+        .retro-input, .retro-textarea {
+            background-color: #000;
+            color: var(--amber);
+            border: 1px solid var(--amber);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 12px;
+            padding: 5px;
+            width: 100%;
+            margin-bottom: 10px;
+            outline: none;
+            box-shadow: 0 0 5px rgba(255, 204, 0, 0.2);
+        }
+
+        .retro-textarea {
+            resize: none;
+            height: 60px;
+        }
+
+        .retro-input:focus, .retro-textarea:focus {
+            background-color: #120d00;
+            box-shadow: 0 0 8px var(--amber);
+        }
+
+        .retro-button {
+            background-color: #000;
+            color: var(--amber);
+            border: 1px solid var(--amber);
+            font-family: inherit;
+            cursor: pointer;
+            padding: 5px 15px;
+            text-transform: uppercase;
+        }
+
+        .retro-button:hover {
+            background-color: var(--amber);
+            color: #000;
+            font-weight: bold;
+        }
+
+        .guestbook-entry {
+            margin-top: 15px;
+            border-bottom: 1px dotted var(--amber-dim);
+            padding-bottom: 5px;
+        }
+
+        .entry-meta {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-bottom: 3px;
+        }
     </style>
 </head>
 <body>
@@ -444,6 +501,7 @@ limitations under the License.
 						<nav>
 							<a class="nav-link active" data-target="home" onclick="navigate('home')">[HOME]</a>
 							<a class="nav-link" data-target="about" onclick="navigate('about')">[ABOUT]</a>
+                            <a class="nav-link" data-target="guestbook" onclick="navigate('guestbook')">[GUESTBOOK]</a>
 							<a class="nav-link" data-target="projects" onclick="navigate('projects')">[PROJECTS]</a>
 							<a class="nav-link" data-target="contact" onclick="navigate('contact')">[CONTACT]</a>
                             <a class="nav-link" data-target="sourcecode" onclick="navigate('sourcecode')">[SOURCE]</a>
@@ -623,7 +681,21 @@ limitations under the License.
 
             THIS WEBSITE IS LICENSED UNDER THE APACHE LICENSE 2.0.<br>
             THE SOURCE CODE AND LICENSE TEXT OF WHICH, CAN BE VIEWED HERE:<br><br>
-            <a href="https://github.com/Ceqell/ceqell" class="tab" target="_blank">https://github.com/Ceqell/ceqell</a><br>`
+            <a href="https://github.com/Ceqell/ceqell" class="tab" target="_blank">https://github.com/Ceqell/ceqell</a><br>`,
+            guestbook: `> OPEN GUESTBOOK.EXE<br><br>
+            LEAVE A MESSAGE FOR THE SYSOP.<br>
+    
+            <div class="retro-form">
+                <input type="text" id="gb-name" class="retro-input" placeholder="ENTER NAME..." maxlength="20" autocomplete="off">
+                <textarea id="gb-msg" class="retro-textarea" placeholder="ENTER MESSAGE..." maxlength="150"></textarea>
+                <button class="retro-button" onclick="submitGuestbook()">[ SUBMIT ]</button>
+                <span id="gb-status" style="margin-left: 10px;"></span>
+            </div>
+
+            <br>> READING SECTORS...
+            <div id="guestbook-list">
+                <!-- Entries will load here -->
+            </div>`
         };
 
         const displayElement = document.getElementById('content-display');
@@ -671,6 +743,10 @@ limitations under the License.
 
                     // Change the typing speed (default is 15ms) here
                     currentTimeout = setTimeout(type, 15);
+
+                    if (currentPageId === 'guestbook') {
+                        loadGuestbookEntries();
+                    }
                 }
             }
         }
@@ -706,6 +782,9 @@ limitations under the License.
                 // Force scroll to bottom to match the typing behavior behavior
                 const container = document.querySelector('.crt-content');
                 container.scrollTop = container.scrollHeight;
+                if (currentPageId === 'guestbook') {
+                    loadGuestbookEntries();
+                }
             }
         }
     }
@@ -713,6 +792,84 @@ limitations under the License.
     window.onload = function() {
         navigate('home');
     };
+
+    // --- GUESTBOOK LOGIC ---
+    async function loadGuestbookEntries() {
+        const list = document.getElementById('guestbook-list');
+        if (!list) return;
+
+        try {
+            const response = await fetch('/api/guestbook');
+            const entries = await response.json();
+        
+            list.innerHTML = ''; // Clear loading text
+        
+            if (entries.length === 0) {
+                list.innerHTML = 'NO RECORDS FOUND.';
+                return;
+            }
+
+            entries.forEach(entry => {
+                // Format the date
+                const dateStr = new Date(entry.timestamp).toLocaleDateString();
+            
+                // Prevent XSS attacks by creating text nodes
+                const div = document.createElement('div');
+                div.className = 'guestbook-entry';
+            
+                const meta = document.createElement('div');
+                meta.className = 'entry-meta';
+                meta.innerText = `USER: ${entry.name} | DATE: ${dateStr}`;
+            
+                const msg = document.createElement('div');
+                msg.innerText = `> ${entry.message}`;
+            
+                div.appendChild(meta);
+                div.appendChild(msg);
+                list.appendChild(div);
+            });
+        } catch (e) {
+            list.innerHTML = 'ERROR: UNABLE TO ESTABLISH CONNECTION TO DATABASE SERVER.';
+        }
+    }
+
+    async function submitGuestbook() {
+        const nameInput = document.getElementById('gb-name');
+        const msgInput = document.getElementById('gb-msg');
+        const status = document.getElementById('gb-status');
+
+        const name = nameInput.value.trim();
+        const message = msgInput.value.trim();
+
+        if (!name || !message) {
+            status.innerText = "ERR: MISSING PARAMETERS";
+            setTimeout(() => status.innerText = "", 2000);
+            return;
+        }
+
+        status.innerText = "TRANSMITTING...";
+
+        try {
+            const response = await fetch('/api/guestbook', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ name, message })
+            });
+
+            if (response.ok) {
+                status.innerText = "ACK RECEIVED.";
+                nameInput.value = '';
+                msgInput.value = '';
+                // Reload the entries to show the new one
+                loadGuestbookEntries();
+                setTimeout(() => status.innerText = "", 3000);
+            } else {
+                status.innerText = "ERR: SERVER REJECTED.";
+            }
+        } catch (e) {
+            status.innerText = "ERR: TX FAILED.";
+        }
+    }
 
     </script>
 	
