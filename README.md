@@ -1,7 +1,9 @@
 # $${\color{red}ceqell}$$ ![tuxpc](coolgifs/tuxonthepc.gif) $${\color{yellow}<---- \space cool \space penguin \space B)))}$$
 open source!!!!!!!
 
- awesome website: ![links](coolgifs/linksarrow.gif)![links](coolgifs/linksarrow.gif)https://www.ceqell.me
+ awesome website: ![links](coolgifs/linksarrow.gif)![links](coolgifs/linksarrow.gif)https://www.ceqell.me [^1]
+
+[^1]: source code: https://github.com/Ceqell/ceqell.github.io
 
 # ![terminal](coolgifs/terminal.gif) ![tuxflip](coolgifs/tuxdafrontflip.gif)
 
